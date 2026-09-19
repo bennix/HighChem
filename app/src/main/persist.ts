@@ -133,31 +133,16 @@ export interface QuestionItem {
   type: string
   stem: string
   options?: string[]
+  blanks?: { id: string; answer: string; kind: string }[]
   answer: string
   analysis: string
   methodA?: string
   methodB?: string
   faster?: string
   verdict?: string
+  genVerdict?: string
   nodes?: string[]
   source?: string
-  createdAt: number
-}
-
-export interface PaperItem {
-  id: string
-  title: string
-  verdict: string
-  accept: boolean
-  questions: {
-    id: string
-    section: string
-    stem: string
-    answer: string
-    analysis: string
-    examPoints?: string[]
-    max: number
-  }[]
   createdAt: number
 }
 
@@ -175,14 +160,6 @@ export function loadQuestions(): QuestionItem[] {
 
 export function saveQuestions(items: QuestionItem[]): void {
   writeJson(userDataFile('questions.json'), items)
-}
-
-export function loadPapers(): PaperItem[] {
-  return readJson(userDataFile('papers.json'), [])
-}
-
-export function savePapers(items: PaperItem[]): void {
-  writeJson(userDataFile('papers.json'), items)
 }
 
 export function loadGraphOverlay() {

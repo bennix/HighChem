@@ -8,14 +8,12 @@ import {
   getApiKey,
   loadChats,
   loadGraphOverlay,
-  loadPapers,
   loadQuestions,
   loadSettings,
   publicSettings,
   QuestionItem,
   saveChats,
   saveGraphOverlay,
-  savePapers,
   saveQuestions,
   saveSettings,
   setApiKey
@@ -23,7 +21,7 @@ import {
 import { chatStream, ChatMsg } from './zenmux'
 import { makeMolXyz } from './mol'
 import { buildIndex, ragStatus, retrieve, formatContext } from './rag'
-import { extractGraph, generatePaper, generateQuestion, gradePaper, judgeAnswer, solveQuestion } from './exam'
+import { extractGraph, generateQuestion, judgeAnswer, solveQuestion } from './exam'
 import { examGuidePublic } from './exam-guide'
 import { loadBookPages, searchBook } from './ocr'
 import { buildSeedGraph, loadTextbookNav } from './curriculum'
@@ -274,32 +272,15 @@ function registerIpc(): void {
   )
 
   ipcMain.handle('exam:guide', () => examGuidePublic())
-  ipcMain.handle('exam:generate', (_e, body: { type: 'choice' | 'short' | 'comprehensive' | 'gaokao'; nodes: { id: string; label: string; bookId?: string }[] }) =>
-    generateQuestion(body)
+  ipcMain.handle('exam:generate', (e, body: { type: 'choice' | 'short' | 'comprehensive' | 'gaokao'; nodes: { id: string; label: string; bookId?: string }[] }) =>
+    generateQuestion(body, (p) => e.sender.send('exam:progress', p))
   )
-  ipcMain.handle('exam:solve', (_e, stem: string) => solveQuestion(stem))
-  ipcMain.handle('exam:judge', (_e, stem: string, student: string) => judgeAnswer(stem, student))
-  ipcMain.handle('exam:paper', async (e) => {
-    return generatePaper((p) => e.sender.send('paper:progress', p))
-  })
-  ipcMain.handle('exam:gradePaper', (_e, paper: { questions: { id: string; section: string; stem: string; answer: string; max: number }[] }, answers: Record<string, string>) =>
-    gradePaper(paper, answers)
+  ipcMain.handle('exam:solve', (e, stem: string) =>
+    solveQuestion(stem, (p) => e.sender.send('exam:progress', p))
   )
-  ipcMain.handle('papers:list', () => loadPapers())
-  ipcMain.handle('papers:save', (_e, paper) => {
-    const all = loadPapers()
-    const item = { ...paper, id: paper.id || uid('paper'), createdAt: paper.createdAt || Date.now() }
-    const i = all.findIndex((p) => p.id === item.id)
-    if (i >= 0) all[i] = item
-    else all.unshift(item)
-    savePapers(all)
-    return all
-  })
-  ipcMain.handle('papers:delete', (_e, ids: string[]) => {
-    savePapers(loadPapers().filter((p) => !ids.includes(p.id)))
-    return loadPapers()
-  })
-
+  ipcMain.handle('exam:judge', (e, stem: string, student: string, official?: { answer?: string; analysis?: string; options?: string[]; blanks?: { id: string; answer: string; kind: string }[]; reason?: string }) =>
+    judgeAnswer(stem, student, official, (p) => e.sender.send('exam:progress', p))
+  )
   ipcMain.handle('bank:list', () => loadQuestions())
   ipcMain.handle('bank:save', (_e, item: QuestionItem) => {
     const all = loadQuestions()

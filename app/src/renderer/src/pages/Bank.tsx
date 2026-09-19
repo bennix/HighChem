@@ -6,11 +6,14 @@ type Q = {
   type: string
   stem: string
   options?: string[]
+  blanks?: { id: string; answer: string; kind: string }[]
   answer: string
   analysis: string
   methodA?: string
   methodB?: string
   faster?: string
+  verdict?: string
+  genVerdict?: string
   createdAt: number
 }
 
@@ -61,14 +64,38 @@ export function Bank() {
         <section className="card paper">
           {cur ? (
             <>
-              <MarkdownView text={`**${cur.type}**\n\n${cur.stem}\n\n${(cur.options || []).join('\n\n')}\n\n**答案** ${cur.answer}\n\n${cur.analysis}`} paper />
+              <MarkdownView text={[
+                `**${typeLabel(cur.type)}**`,
+                cur.stem,
+                (cur.options || []).join('\n\n'),
+                cur.blanks?.length ? `**分空**\n${cur.blanks.map((b) => `${b.id}（${kindLabel(b.kind)}） ${b.answer}`).join('\n')}` : '',
+                `**答案** ${cur.answer}`,
+                cur.analysis
+              ].filter(Boolean).join('\n\n')} paper />
+              {cur.genVerdict ? <MarkdownView text={`## 命题仲裁\n\n${cur.genVerdict}`} paper /> : null}
               {cur.methodA ? <MarkdownView text={`## 解法 A\n\n${cur.methodA}`} paper /> : null}
               {cur.methodB ? <MarkdownView text={`## 解法 B\n\n${cur.methodB}`} paper /> : null}
               {cur.faster ? <MarkdownView text={`## 更快捷的解法\n\n${cur.faster}`} paper /> : null}
+              {cur.verdict ? <MarkdownView text={`## 双解仲裁\n\n${cur.verdict}`} paper /> : null}
             </>
           ) : <p className="muted">点左侧题目查看渲染后的 Markdown / LaTeX。</p>}
         </section>
       </div>
     </div>
   )
+}
+
+function typeLabel(t: string): string {
+  if (t === 'choice') return '不定项 / 单选'
+  if (t === 'short') return '简答评价'
+  if (t === 'comprehensive') return '综合大题'
+  if (t === 'gaokao') return '等级考综合题'
+  return t
+}
+
+function kindLabel(k: string): string {
+  if (k === 'choice') return '选择'
+  if (k === 'calc') return '计算'
+  if (k === 'short') return '简答'
+  return '填空'
 }

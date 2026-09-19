@@ -49,20 +49,13 @@ const api = {
   exam: {
     guide: () => ipcRenderer.invoke('exam:guide'),
     generate: (body: unknown) => ipcRenderer.invoke('exam:generate', body),
+    onProgress: (cb: (p: { step: number; total: number; label: string; lane?: string; delta?: string; reset?: boolean }) => void): Unsub => {
+      const fn = (_e: unknown, p: { step: number; total: number; label: string; lane?: string; delta?: string; reset?: boolean }) => cb(p)
+      ipcRenderer.on('exam:progress', fn)
+      return () => ipcRenderer.removeListener('exam:progress', fn)
+    },
     solve: (stem: string) => ipcRenderer.invoke('exam:solve', stem),
-    judge: (stem: string, student: string) => ipcRenderer.invoke('exam:judge', stem, student),
-    paper: () => ipcRenderer.invoke('exam:paper'),
-    gradePaper: (paper: unknown, answers: Record<string, string>) => ipcRenderer.invoke('exam:gradePaper', paper, answers),
-    onPaperProgress: (cb: (p: { step: number; total: number; label: string }) => void): Unsub => {
-      const fn = (_e: unknown, p: { step: number; total: number; label: string }) => cb(p)
-      ipcRenderer.on('paper:progress', fn)
-      return () => ipcRenderer.removeListener('paper:progress', fn)
-    }
-  },
-  papers: {
-    list: () => ipcRenderer.invoke('papers:list'),
-    save: (paper: unknown) => ipcRenderer.invoke('papers:save', paper),
-    delete: (ids: string[]) => ipcRenderer.invoke('papers:delete', ids)
+    judge: (stem: string, student: string, official?: unknown) => ipcRenderer.invoke('exam:judge', stem, student, official)
   },
   bank: {
     list: () => ipcRenderer.invoke('bank:list'),

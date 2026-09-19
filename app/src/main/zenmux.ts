@@ -52,17 +52,29 @@ export async function chatComplete(params: {
   return data.choices?.[0]?.message?.content || ''
 }
 
-function streamPiece(json: Record<string, unknown>): string {
+function asText(v: unknown): string {
+  if (!v) return ''
+  if (typeof v === 'string') return v
+  if (Array.isArray(v)) return v.map(asText).join('')
+  if (typeof v === 'object') {
+    const o = v as Record<string, unknown>
+    return asText(o.text ?? o.content ?? o.output_text ?? o.value)
+  }
+  return ''
+}
+
+function streamPiece(json: Record<string, unknown>): { keep: string; visible: string } {
   const choices = json.choices as Array<Record<string, unknown>> | undefined
   const ch = choices?.[0] || {}
   const delta = (ch.delta || json.delta) as Record<string, unknown> | undefined
-  const content = delta?.content ?? (ch.message as Record<string, unknown> | undefined)?.content
-  if (typeof content === 'string') return content
-  if (Array.isArray(content)) {
-    return content.map((p) => (typeof p === 'string' ? p : String((p as Record<string, unknown>)?.text || (p as Record<string, unknown>)?.content || ''))).join('')
-  }
-  if (typeof delta?.text === 'string') return delta.text
-  return ''
+  const msg = (ch.message || json.message) as Record<string, unknown> | undefined
+  const content = asText(
+    delta?.content ?? msg?.content ?? json.content ?? delta?.text ?? json.output_text ?? delta?.output_text
+  )
+  const think = asText(delta?.reasoning_content ?? msg?.reasoning_content ?? delta?.reasoning ?? msg?.reasoning)
+  if (content) return { keep: content, visible: content }
+  if (think) return { keep: '', visible: think }
+  return { keep: '', visible: '' }
 }
 
 export async function chatStream(
@@ -88,7 +100,8 @@ export async function chatStream(
 
   const reader = res.body.getReader()
   const decoder = new TextDecoder()
-  let full = ''
+  let keep = ''
+  let visible = ''
   let buffer = ''
 
   while (true) {
@@ -97,24 +110,29 @@ export async function chatStream(
     buffer += decoder.decode(value, { stream: true })
     const lines = buffer.split('\n')
     buffer = lines.pop() || ''
-    for (const line of lines) {
-      const trimmed = line.trim()
-      if (!trimmed.startsWith('data:')) continue
-      const payload = trimmed.slice(5).trim()
-      if (payload === '[DONE]') continue
-      try {
-        const json = JSON.parse(payload) as Record<string, unknown>
-        const piece = streamPiece(json)
-        if (piece) {
-          full += piece
-          onDelta(piece)
-        }
-      } catch {
-        // ignore partial json
+    for (const line of lines) takeSseLine(line)
+  }
+  buffer += decoder.decode()
+  if (buffer.trim()) takeSseLine(buffer)
+
+  function takeSseLine(line: string) {
+    const trimmed = line.trim()
+    if (!trimmed.startsWith('data:')) return
+    const payload = trimmed.slice(5).trim()
+    if (!payload || payload === '[DONE]') return
+    try {
+      const json = JSON.parse(payload) as Record<string, unknown>
+      const piece = streamPiece(json)
+      if (piece.visible) {
+        visible += piece.visible
+        onDelta(piece.visible)
       }
+      if (piece.keep) keep += piece.keep
+    } catch {
+      // ignore partial json
     }
   }
-  return full
+  return keep || visible
 }
 
 export async function embedTexts(model: string, inputs: string[]): Promise<number[][]> {
@@ -138,13 +156,76 @@ export async function embedTexts(model: string, inputs: string[]): Promise<numbe
   return out
 }
 
-export function parseJsonLoose<T>(raw: string): T {
+function sliceObject(raw: string): string {
   const fenced = raw.match(/```(?:json)?\s*([\s\S]*?)```/)
   const text = (fenced?.[1] || raw).trim()
   const start = text.indexOf('{')
   const end = text.lastIndexOf('}')
-  if (start >= 0 && end > start) {
-    return JSON.parse(text.slice(start, end + 1)) as T
+  if (start < 0 || end <= start) throw new Error('模型未返回可解析 JSON')
+  return text.slice(start, end + 1)
+}
+
+function escapeBrokenJsonStrings(src: string): string {
+  let out = ''
+  let inStr = false
+  let esc = false
+  for (let i = 0; i < src.length; i++) {
+    const ch = src[i]
+    if (!inStr) {
+      if (ch === '"') inStr = true
+      out += ch
+      continue
+    }
+    if (esc) {
+      out += ch
+      esc = false
+      continue
+    }
+    if (ch === '\\') {
+      const next = src[i + 1] || ''
+      const after = src[i + 2] || ''
+      if (next === '"' || next === '\\' || next === '/') {
+        out += ch
+        esc = true
+      } else if (next === 'u' && /^[0-9a-fA-F]{4}/.test(src.slice(i + 2, i + 6))) {
+        out += ch
+        esc = true
+      } else if ('bfnrt'.includes(next) && !/[A-Za-z]/.test(after)) {
+        out += ch
+        esc = true
+      } else {
+        out += '\\\\'
+      }
+      continue
+    }
+    if (ch === '"') {
+      inStr = false
+      out += ch
+      continue
+    }
+    if (ch === '\n') {
+      out += '\\n'
+      continue
+    }
+    if (ch === '\r') {
+      out += '\\r'
+      continue
+    }
+    if (ch === '\t') {
+      out += '\\t'
+      continue
+    }
+    out += ch
   }
-  throw new Error('模型未返回可解析 JSON')
+  return out
+}
+
+export function parseJsonLoose<T>(raw: string): T {
+  const sliced = sliceObject(raw)
+  const repaired = escapeBrokenJsonStrings(sliced).replace(/,\s*([}\]])/g, '$1')
+  try {
+    return JSON.parse(repaired) as T
+  } catch {
+    return JSON.parse(sliced) as T
+  }
 }

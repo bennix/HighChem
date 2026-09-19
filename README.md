@@ -33,4 +33,4 @@ npm run dist:linux   # Ubuntu .deb 与 RPM
 npm run dist:win     # Windows 安装包
 ```
 
-产物在 `app/release/`。安装包会把本机教材 PDF 打进 `extraResources`，因此体积较大，也不应作为公开 Release 上传受版权保护的教材。
+产物在 `app/release/`。安装包只带大纲，不含教材 PDF。

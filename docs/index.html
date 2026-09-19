@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>高中化学 AI学伴</title>
+    <meta name="description" content="沪科版五册教材桌面学伴：正文检索、知识图谱、3D 分子、流式问答与高考口径出题。" />
+    <link rel="icon" type="image/png" href="./icon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Noto+Serif+SC:wght@500;700;900&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --chassis: #141a16;
+        --panel: #1e2822;
+        --line: #3c4d43;
+        --paper: #f3ebda;
+        --copper: #c56a2d;
+        --patina: #4f8f78;
+        --flame: #e0a84b;
+        --text: #ede6d4;
+        --muted: #9aa89a;
+      }
+      * { box-sizing: border-box; }
+      html, body { margin: 0; }
+      html { scroll-behavior: smooth; }
+      body {
+        font-family: 'IBM Plex Sans', 'PingFang SC', 'Hiragino Sans GB', 'Noto Sans SC', sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(1200px 600px at 80% -10%, rgba(197, 106, 45, 0.16), transparent 55%),
+          radial-gradient(900px 500px at -10% 20%, rgba(79, 143, 120, 0.14), transparent 50%),
+          var(--chassis);
+      }
+      body::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        opacity: 0.045;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
+      }
+      a { color: var(--flame); text-decoration: none; }
+      .wrap { width: min(1120px, calc(100% - 40px)); margin: 0 auto; }
+      nav {
+        position: sticky;
+        top: 0;
+        z-index: 8;
+        backdrop-filter: blur(16px);
+        background: rgba(20, 26, 22, 0.72);
+        border-bottom: 1px solid rgba(60, 77, 67, 0.7);
+      }
+      nav .wrap { display: flex; align-items: center; justify-content: space-between; padding: 14px 0; }
+      .brand { display: flex; gap: 10px; align-items: center; color: var(--paper); font-family: 'Noto Serif SC', 'Songti SC', 'PingFang SC', serif; font-weight: 700; }
+      .brand img { width: 36px; height: 36px; border-radius: 9px; }
+      nav a { color: var(--muted); margin-left: 22px; font-size: 14px; }
+      nav a:hover { color: var(--paper); }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid var(--line);
+        background: #2a352e;
+        color: var(--paper);
+        border-radius: 8px;
+        padding: 11px 16px;
+        min-width: 148px;
+      }
+      .btn.primary { background: var(--copper); border-color: #a05522; color: #fff8ee; }
+      .btn:hover { border-color: var(--patina); }
+      .hero { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 48px; align-items: center; padding: 86px 0 72px; }
+      .kicker { color: var(--patina); letter-spacing: 0.18em; font-size: 12px; text-transform: uppercase; }
+      h1 {
+        font-family: 'Noto Serif SC', 'Songti SC', 'PingFang SC', serif;
+        font-weight: 900;
+        font-size: clamp(40px, 6vw, 76px);
+        line-height: 1.05;
+        margin: 12px 0 18px;
+        color: var(--paper);
+      }
+      .lead { font-size: 18px; color: var(--muted); max-width: 34em; line-height: 1.7; }
+      .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 28px; }
+      .meta { display: flex; gap: 22px; margin-top: 28px; color: var(--muted); font-size: 13px; }
+      .meta b { display: block; color: var(--paper); font-size: 20px; font-family: 'Noto Serif SC', serif; }
+      .icon-stage {
+        position: relative;
+        min-height: 420px;
+        display: grid;
+        place-items: center;
+      }
+      .icon-stage img {
+        width: min(380px, 100%);
+        border-radius: 46px;
+        box-shadow: 0 30px 80px rgba(0,0,0,.45), 0 0 0 1px rgba(243,235,218,.08);
+      }
+      .ribbon {
+        position: absolute;
+        right: 4%;
+        bottom: 8%;
+        background: var(--paper);
+        color: #243027;
+        padding: 10px 14px;
+        font-family: 'Noto Serif SC', serif;
+        transform: rotate(-6deg);
+      }
+      .manifesto {
+        border-top: 1px solid var(--line);
+        border-bottom: 1px solid var(--line);
+        padding: 64px 0;
+      }
+      .manifesto p {
+        font-family: 'Noto Serif SC', serif;
+        font-size: clamp(26px, 3.4vw, 40px);
+        line-height: 1.45;
+        max-width: 16em;
+        margin: 0;
+        color: var(--paper);
+      }
+      .feature {
+        display: grid;
+        grid-template-columns: 180px 1fr;
+        gap: 32px;
+        padding: 42px 0;
+        border-bottom: 1px solid rgba(60, 77, 67, 0.65);
+      }
+      .feature .idx { color: var(--copper); font-family: 'Noto Serif SC', serif; font-size: 28px; }
+      .feature h2 { margin: 0 0 8px; font-family: 'Noto Serif SC', serif; font-size: 28px; }
+      .feature p { margin: 0; color: var(--muted); max-width: 46em; line-height: 1.75; }
+      #download { padding: 80px 0 40px; }
+      #download h2 { font-family: 'Noto Serif SC', serif; font-size: 40px; margin: 0 0 12px; }
+      .dl {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 14px;
+        margin-top: 28px;
+      }
+      .dl a {
+        display: block;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 18px 16px 16px;
+        color: var(--paper);
+        min-height: 148px;
+      }
+      .dl a:hover { border-color: var(--flame); }
+      .dl small { display: block; color: var(--muted); margin: 8px 0 18px; }
+      .note { color: var(--muted); font-size: 13px; margin-top: 18px; max-width: 62em; line-height: 1.7; }
+      footer { padding: 40px 0 60px; color: var(--muted); font-size: 13px; }
+      @media (max-width: 860px) {
+        .hero, .feature, .dl { grid-template-columns: 1fr; }
+        nav .links { display: none; }
+        .icon-stage { min-height: 280px; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        html { scroll-behavior: auto; }
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <div class="wrap">
+        <a class="brand" href="#top"><img src="./icon.png" alt="" />高中化学 AI学伴</a>
+        <div class="links">
+          <a href="#features">特性</a>
+          <a href="#download">下载</a>
+          <a href="https://github.com/bennix/HighChem">GitHub</a>
+        </div>
+      </div>
+    </nav>
+    <header class="wrap hero" id="top">
+      <div>
+        <div class="kicker">Shanghai Science Press · Desktop Lab</div>
+        <h1>把整套沪科版<br />放进实验台。</h1>
+        <p class="lead">教材是正文，大纲只负责定位。本地检索五册原文，辅以 3D 分子、知识图谱、流式问答，以及上海等级考口径的出题与整卷模考。</p>
+        <div class="hero-actions">
+          <a class="btn primary" href="#download">下载桌面版</a>
+          <a class="btn" href="https://github.com/bennix/HighChem">查看源码</a>
+        </div>
+        <div class="meta">
+          <div><b>5</b>册教材</div>
+          <div><b>3D</b>分子</div>
+          <div><b>双模型</b>出题</div>
+          <div><b>本地</b>密钥保险箱</div>
+        </div>
+      </div>
+      <div class="icon-stage">
+        <img src="./icon.png" alt="高中化学 AI学伴图标：铜绿分子与琥珀色烧瓶" />
+        <div class="ribbon">macOS · Ubuntu · RPM · Windows</div>
+      </div>
+    </header>
+    <section class="manifesto">
+      <div class="wrap">
+        <p>不拿大纲冒充课文。页码、引用、答题都回到可搜索的教材 PDF。</p>
+      </div>
+    </section>
+    <section class="wrap" id="features">
+      <article class="feature">
+        <div class="idx">01</div>
+        <div>
+          <h2>教材精读</h2>
+          <p>左侧目录、中间 PDF、右侧本页问答可各自隐藏或拖动。引用写成「选必2第48页」或「必修第一册 P138」即可跳到对应页，预览若已收起会自动打开，回答留在原处。</p>
+        </div>
+      </article>
+      <article class="feature">
+        <div class="idx">02</div>
+        <div>
+          <h2>全高中知识图谱</h2>
+          <p>不是单册孤岛。五册考点连成一张图，从节点可以直接跳教材或发起出题。</p>
+        </div>
+      </article>
+      <article class="feature">
+        <div class="idx">03</div>
+        <div>
+          <h2>3D 分子实验室</h2>
+          <p>本地 XYZ 结构，原子旁标中文名。拖转、滚轮缩放，一键复位默认视角。也可以按当前分子检索教材提问。</p>
+        </div>
+      </article>
+      <article class="feature">
+        <div class="idx">04</div>
+        <div>
+          <h2>流式问答与高考口径</h2>
+          <p>粘贴截图、上传附件，回答按 token 流出并渲染化学式。出题走双模型交叉，再由仲裁模型判定是否入库；支持等级考拼卷与整卷机评。</p>
+        </div>
+      </article>
+    </section>
+    <section class="wrap" id="download">
+      <h2>取用桌面版</h2>
+      <p class="lead">Apple 公证的 macOS DMG，以及 Ubuntu、RPM 与 Windows 安装包。API Key 只存在本机保险箱，界面只显示掩码。</p>
+      <div class="dl">
+        <a href="https://github.com/bennix/HighChem/releases/latest">
+          <strong>macOS</strong>
+          <small>Apple Silicon · 公证 DMG</small>
+          HighChem-1.0.0-macos-arm64.dmg
+        </a>
+        <a href="https://github.com/bennix/HighChem/releases/latest">
+          <strong>Ubuntu</strong>
+          <small>Debian 系 · amd64</small>
+          HighChem-1.0.0-ubuntu-amd64.deb
+        </a>
+        <a href="https://github.com/bennix/HighChem/releases/latest">
+          <strong>RPM</strong>
+          <small>Fedora / RHEL · x86_64</small>
+          HighChem-1.0.0-linux-x86_64.rpm
+        </a>
+        <a href="https://github.com/bennix/HighChem/releases/latest">
+          <strong>Windows</strong>
+          <small>x64 安装程序</small>
+          HighChem-1.0.0-windows-x64.zip
+        </a>
+      </div>
+      <p class="note">公开仓库不含沪科版教材 PDF。安装包若在本机打包，会从本地目录带入可搜索 PDF，请勿把受版权保护的教材上传到公开 Release。</p>
+    </section>
+    <footer>
+      <div class="wrap">高中化学 AI学伴 · 源码 <a href="https://github.com/bennix/HighChem">github.com/bennix/HighChem</a></div>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,20 @@
+.DS_Store
+.memsearch/
+.env
+.env.*
+*.log
+node_modules/
+app/node_modules/
+app/out/
+app/release/
+app/dist/
+app/build/icon.iconset/
+
+# 沪科版教材原件与逐页图，不入库
+*.pdf
+*-逐页图片/
+*-OCR文字.txt
+
+# 本机公证凭据，禁止提交
+.apple-notarize.env
+**/notarize.env

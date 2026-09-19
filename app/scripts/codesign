@@ -1,0 +1,12 @@
+#!/bin/bash
+n=0
+while true; do
+  if /usr/bin/codesign "$@"; then
+    exit 0
+  fi
+  n=$((n + 1))
+  if [ "$n" -ge 14 ]; then
+    exit 1
+  fi
+  sleep $((n + 1))
+done

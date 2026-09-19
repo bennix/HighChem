@@ -1,0 +1,76 @@
+appId: edu.highchem.desktop
+productName: HighChem
+copyright: Copyright © 2026 HighChem
+artifactName: ${productName}-${version}-${os}-${arch}.${ext}
+directories:
+  output: release
+  buildResources: build
+files:
+  - out/**/*
+  - package.json
+  - build/icon.png
+  - build/icon.ico
+asar: true
+extraResources:
+  - from: ../
+    to: textbooks
+    filter:
+      - '*-教材大纲.md'
+mac:
+  category: public.app-category.education
+  icon: build/icon.icns
+  identity: "ZHIPING XU (5N66S29EK2)"
+  hardenedRuntime: true
+  gatekeeperAssess: false
+  notarize: true
+  entitlements: build/entitlements.mac.plist
+  entitlementsInherit: build/entitlements.mac.plist
+  extendInfo:
+    CFBundleDisplayName: 高中化学 AI学伴
+    CFBundleName: HighChem
+    NSHumanReadableCopyright: Copyright © 2026 HighChem
+  target:
+    - target: dmg
+      arch:
+        - arm64
+    - target: zip
+      arch:
+        - arm64
+dmg:
+  title: "高中化学 AI学伴"
+  icon: build/icon.icns
+  artifactName: ${productName}-${version}-macos-${arch}.${ext}
+win:
+  icon: build/icon.ico
+  target:
+    - target: zip
+      arch:
+        - x64
+    - target: nsis
+      arch:
+        - x64
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  artifactName: ${productName}-${version}-windows-${arch}-setup.${ext}
+  shortcutName: 高中化学 AI学伴
+linux:
+  icon: build/icon.png
+  category: Education
+  syncDesktopName: true
+  synopsis: 沪科版高中化学 AI 学伴
+  desktop:
+    entry:
+      Name: "高中化学 AI学伴"
+      Comment: "教材、知识图谱、3D 分子与高考口径出题"
+  target:
+    - target: deb
+      arch:
+        - x64
+    - target: rpm
+      arch:
+        - x64
+deb:
+  artifactName: ${productName}-${version}-ubuntu-${arch}.${ext}
+rpm:
+  artifactName: ${productName}-${version}-linux-${arch}.${ext}

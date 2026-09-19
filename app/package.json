@@ -1,0 +1,41 @@
+{
+  "name": "highchem",
+  "version": "1.0.0",
+  "description": "沪科版高中化学可视化学习台：教材、知识图谱、3D 分子、RAG 问答与双模型出题",
+  "main": "./out/main/index.js",
+  "author": "ZHIPING XU <zpxu@fudan.edu.cn>",
+  "homepage": "https://github.com/bennix/HighChem",
+  "desktopName": "highchem.desktop",
+  "license": "MIT",
+  "scripts": {
+    "dev": "electron-vite dev",
+    "build": "electron-vite build",
+    "preview": "electron-vite preview",
+    "dist": "electron-vite build && electron-builder --mac --linux --win",
+    "dist:mac": "electron-vite build && electron-builder --mac",
+    "dist:linux": "electron-vite build && electron-builder --linux",
+    "dist:win": "electron-vite build && electron-builder --win"
+  },
+  "dependencies": {
+    "3dmol": "^2.5.2",
+    "katex": "^0.16.22",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-force-graph-2d": "^1.27.1",
+    "react-markdown": "^9.1.0",
+    "rehype-katex": "^7.0.1",
+    "remark-gfm": "^4.0.1",
+    "remark-math": "^6.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
+    "@vitejs/plugin-react": "^4.3.4",
+    "@types/node": "^22.13.10",
+    "electron": "^35.1.2",
+    "electron-builder": "^26.0.12",
+    "electron-vite": "^3.1.0",
+    "typescript": "^5.8.2",
+    "vite": "^6.2.2"
+  }
+}

@@ -16,6 +16,8 @@ extraResources:
     to: textbooks
     filter:
       - '*-教材大纲.md'
+      - '*-OCR文字.txt'
+      - '*可搜索文字版.pdf'
 mac:
   category: public.app-category.education
   icon: build/icon.icns

@@ -1,6 +1,6 @@
 {
   "name": "highchem",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "沪科版高中化学可视化学习台：教材、知识图谱、3D 分子、RAG 问答与双模型出题",
   "main": "./out/main/index.js",
   "author": "ZHIPING XU <zpxu@fudan.edu.cn>",

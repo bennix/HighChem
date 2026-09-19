@@ -12,7 +12,7 @@ npm install
 npm run dev
 ```
 
-教材 PDF / OCR 放在仓库根目录（不随 Git 与安装包分发，避免版权与签名体积）。也可设置 `HIGHCHEM_ROOT` 指向本机教材目录。
+教材 PDF / OCR 放在仓库根目录，不进 Git。安装包会带上五册可搜索 PDF 与 OCR。也可设置 `HIGHCHEM_ROOT`。
 
 1. 打开「设置」，填入 [ZenMux](https://zenmux.ai/invite/GBQMC5) API Key。
 2. 建立五册教材向量索引。
@@ -33,4 +33,4 @@ npm run dist:linux   # Ubuntu .deb 与 RPM
 npm run dist:win     # Windows 安装包
 ```
 
-产物在 `app/release/`。安装包只带大纲，不含教材 PDF。
+产物在 `app/release/`。安装包含五册可搜索 PDF。
